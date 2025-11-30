@@ -38,6 +38,15 @@ jobs:
           make package THEOS_PACKAGE_SCHEME=rootless FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=roothide FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
 
+      # --> 🔥 添加创建 tag 的步骤
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag build-${{ github.run_number }}
+          git push origin build-${{ github.run_number }}
+
+      # --> 发布 release
       - name: Create release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -49,6 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # --> 上传 deb 文件到 release 资产列表
       - name: Upload deb to release
         uses: softprops/action-gh-release@v2
         with:
