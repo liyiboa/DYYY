@@ -1,6 +1,6 @@
 name: build deb
 
-on: 
+on:
   push:
   pull_request:
 
@@ -38,8 +38,20 @@ jobs:
           make package THEOS_PACKAGE_SCHEME=rootless FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=roothide FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
 
-      - name: Upload specific Deb packages
-        uses: actions/upload-artifact@v4.6.0
+      - name: Create release
+        id: create_release
+        uses: softprops/action-gh-release@v2
         with:
-          name: DYYY
-          path: ${{ github.workspace }}/packages/*.deb
+          tag_name: build-${{ github.run_number }}
+          name: "Auto Build ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload deb to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ github.workspace }}/packages/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
